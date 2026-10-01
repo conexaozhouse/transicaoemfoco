@@ -91,30 +91,26 @@ window.TF_DATA = {
     /* Comparação exibida em "Quem aprova?" (aba FlyTour).
        comoFunciona = como funcionava (observações da planilha).
        agora = leitura das colunas da planilha (Substituto / Aprovador do próprio aprovador) — revisar com a área. */
-    agora: [
-      { icone: "swap_horiz", texto: "Cada centro de custo passa a ter o aprovador indicado na consulta, no lugar do aprovador anterior." },
-      { icone: "flight_takeoff", texto: "Em parte dos centros de custo, as viagens do próprio aprovador passam a ser aprovadas por outra pessoa." }
-    ],
-    comoFunciona: [
-      { icone: "account_tree", texto: "Alçada por Centro de Custo e não há alçada por custos. Uma passagem nacional de R$ 400 e uma viagem internacional de R$ 40 mil seguem o mesmo caminho." },
-      { icone: "how_to_reg", texto: "Auto-aprovação: todos os aprovadores autorizam seus próprios custos de viagens." }
-    ],
+    // ⚠ PLACEHOLDER (lorem ipsum) — substituir pelos textos oficiais.
+    agora: ["Lorem ipsum dolor sit amet, consectetur adipiscing elit.","Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.","Ut enim ad minim veniam, quis nostrud exercitation ullamco."],
+    comoFunciona: ["Lorem ipsum dolor sit amet, consectetur adipiscing elit.","Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.","Ut enim ad minim veniam, quis nostrud exercitation ullamco."],
+    observacao: "Uma passagem nacional de R$ 400 e uma viagem internacional de R$ 40 mil seguem o mesmo caminho. As viagens do próprio aprovador serão aprovadas por Rafael Fabrino.",
     documento: null,                   // link para a página/documento oficial de alçadas, quando existir
     regras: [
       { centroCusto: "Hospitalidade, exceto A&B", anterior: "Pedro Treacher", aprovador: "Danilo Zanatta", proprio: "Rafael Fabrino" },
-      { centroCusto: "Jucaí Comercial", anterior: "Roberto Haag", aprovador: "Rafael Fabrino", proprio: null },
+      { centroCusto: "Juçaí Comercial", anterior: "Roberto Haag", aprovador: "Rafael Fabrino", proprio: null },
       { centroCusto: "Operações Agro", anterior: "Roberto Haag", aprovador: "Gilberto Lima", proprio: "Rafael Fabrino" },
       { centroCusto: "ADM zhouse e Operações", anterior: "Raul Gama", aprovador: "Evandro Salles", proprio: "Rafael Fabrino" },
       { centroCusto: "Marketing zhouse e Operações", anterior: "Roberta Morelli", aprovador: "Pedro Treacher", proprio: "Rafael Fabrino" },
       { centroCusto: "zhouse; A&B Operações", anterior: "Fernanda Zanetti", aprovador: "Danilo Zanatta", proprio: "Rafael Fabrino" },
       { centroCusto: "zhouse e Operações", anterior: "Anna Leticia Azevedo", aprovador: "Evandro Salles", proprio: "Rafael Fabrino" },
-      { centroCusto: "Comunicação Institucional, Senior L EUA", anterior: "Isabel Maria Ferreira Bastos", aprovador: "Rafael Fabrino", proprio: null },
-      { centroCusto: "Presidência", anterior: "Isabel Maria Ferreira Bastos", aprovador: "Daniela Veltri ou Evandro Salles", proprio: null },
+      { centroCusto: "Comunicação Institucional, Senior L EUA", anterior: "Isabel Bastos", aprovador: "Rafael Fabrino", proprio: null },
+      { centroCusto: "Presidência", anterior: "Isabel Bastos", aprovador: "Daniela Veltri ou Evandro Salles", proprio: null },
       { centroCusto: "zhouse e Operações", anterior: "Daniela Veltri", aprovador: "Daniela Veltri", proprio: "Rafael Fabrino" },
       { centroCusto: "Capex Obras; Novos Negócios", anterior: "Beatriz Mauro", aprovador: "Evandro Salles", proprio: null },
-      { centroCusto: "Jucaí Fábrica", anterior: "Maria Luiza Goncalves Silva", aprovador: "Rafael Fabrino", proprio: null },
-      { centroCusto: "Humanize ADM; Sustentabilidade", anterior: "Michele Carvalho Rocha Cardoso", aprovador: "Rafael Fabrino", proprio: null },
-      { centroCusto: "Oteque", anterior: "Alberto Okuda Landgraf", aprovador: "Alberto Okuda Landgraf", proprio: "Rafael Fabrino" },
+      { centroCusto: "Juçaí Fábrica", anterior: "Maria Luiza Silva", aprovador: "Rafael Fabrino", proprio: null },
+      { centroCusto: "Humanize ADM; Sustentabilidade", anterior: "Michele Cardoso", aprovador: "Rafael Fabrino", proprio: null },
+      { centroCusto: "Oteque", anterior: "Alberto Landgraf", aprovador: "Alberto Landgraf", proprio: "Rafael Fabrino" },
       { centroCusto: "Amma", anterior: "Fernanda Schwarzstein", aprovador: "Fernanda Schwarzstein", proprio: "Rafael Fabrino" },
       { centroCusto: "Flávia Aranha", anterior: "Flavia Aranha", aprovador: "Flavia Aranha", proprio: "Rafael Fabrino" },
       { centroCusto: "Usuários - Obras", anterior: "Carolina Pinheiro", aprovador: "Daniela Veltri", proprio: null },

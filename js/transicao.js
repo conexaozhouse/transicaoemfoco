@@ -255,11 +255,10 @@
         media.innerHTML = '';
         media.appendChild(el('iframe', null, { src: V.embed + (V.embed.indexOf('?') > -1 ? '&' : '?') + 'autoplay=1', title: V.rotulo, allow: 'autoplay; fullscreen; picture-in-picture', allowfullscreen: '' }));
       } else if (V.url) window.open(V.url, '_blank', 'noopener');
-      else if (ph) flash(ph);
+
     });
     media.appendChild(V.thumb ? el('img', null, { src: V.thumb, alt: '' }) : el('div', 'tf-video-cover', { 'aria-hidden': 'true' }));
     media.appendChild(play);
-    media.appendChild(el('div', 'tf-video-badges', null, [el('span', 'tf-video-chip', null, [icon('play_circle_outline'), V.rotulo]), ph]));
     return el('article', 'tf-card tf-video', { 'aria-label': V.rotulo }, [
       media,
       el('div', 'tf-video-info', null, [
@@ -380,21 +379,18 @@
   /* ---------- quem aprova ---------- */
   var validating = AL.status !== 'vigente';
   function statusChip() { return el('span', 'tf-status ' + (validating ? 'is-validating' : 'is-live'), { text: validating ? 'Em validação' : 'Vigente' }); }
-  function ruleRow(r, q, asButton) {
+  function ruleRow(r, q, alt) {
     var changed = r.anterior && r.anterior !== r.aprovador;
-    var kids = [
-      el('div', 'tf-rule-cc', null, [el('span', null, { text: 'Centro de custo' }), el('strong', null, null, [highlight(r.centroCusto, q || '')])]),
+    var who = r.aprovador.split(/\s+ou\s+/);
+    return el('div', 'tf-rule' + (alt ? ' is-alt' : ''), null, [
+      el('div', 'tf-rule-cc', null, [el('span', 'tf-rule-lbl', { text: 'Centro de custo' }), el('strong', null, null, [highlight(r.centroCusto, q || '')])]),
+      el('div', 'tf-rule-before', null, [el('span', 'tf-rule-lbl', { text: 'Antes' }), changed ? el('span', null, null, [highlight(r.anterior, q || '')]) : el('span', 'tf-rule-same', { text: 'Sem alteração' })]),
+      el('span', 'tf-rule-arrow', { 'aria-hidden': 'true' }, [icon('arrow_forward')]),
       el('div', 'tf-rule-who', null, [
-        el('span', 'tf-avatar', { 'aria-hidden': 'true', text: initials(r.aprovador) }),
-        el('div', null, null, [
-          el('strong', null, null, [highlight(r.aprovador, q || '')]),
-          changed ? el('span', null, null, ['Antes: ', el('s', null, { text: r.anterior })]) : el('span', null, { text: 'Aprovador' })
-        ])
-      ]),
-      r.proprio ? el('div', 'tf-rule-own', null, [icon('flight_takeoff'), 'Viagens do próprio aprovador: ' + r.proprio]) : null
-    ];
-    if (asButton) return el('button', 'tf-rule', { type: 'button', onclick: function () { openRules(r.centroCusto); } }, kids);
-    return el('div', 'tf-rule', null, kids);
+        el('span', 'tf-rule-avs', { 'aria-hidden': 'true' }, who.map(function (w) { return el('span', 'tf-avatar', { text: initials(w) }); })),
+        el('div', null, null, [el('span', 'tf-rule-lbl', { text: 'Aprova agora' }), el('strong', null, { title: r.aprovador }, [highlight(r.aprovador.replace(/\s+ou\s+/, ' / '), q || '')])])
+      ])
+    ]);
   }
   function approveSection() {
     var systems = AL.sistemas || [{ nome: 'FlyTour', ativo: true }];
@@ -403,23 +399,25 @@
     function compareCard(kind, title, ic, items) {
       return el('div', 'tf-ap-col is-' + kind, null, [
         el('div', 'tf-ap-col-head', null, [el('span', 'tf-ap-col-ic', { 'aria-hidden': 'true' }, [icon(ic)]), el('strong', null, { text: title })]),
-        el('ul', 'tf-ap-list', null, (items || []).map(function (f) { return el('li', null, null, [icon(f.icone), el('span', null, { text: f.texto })]); }))
+        el('ol', 'tf-ap-list', null, (items || []).map(function (f, i) { return el('li', null, null, [el('b', null, { text: String(i + 1) }), el('span', null, { text: f.texto || f })]); }))
       ]);
     }
     function show(s) {
       [].forEach.call(tabs.children, function (b) { b.setAttribute('aria-selected', b._s === s ? 'true' : 'false'); });
       panel.innerHTML = '';
       panel.appendChild(el('div', 'tf-ap-head', null, [
-        el('div', 'tf-ap-title', null, [el('h3', null, { text: 'Alçadas no ' + s.nome }), statusChip()]),
-        el('div', 'tf-ap-cta', null, [
-          AL.documento ? el('a', 'tf-btn tf-btn--ghost', assign({ href: AL.documento }, ext(AL.documento)), ['Documento oficial', icon('north_east')]) : null,
-          el('button', 'tf-btn', { type: 'button', onclick: function () { openRules(''); } }, [icon('search'), 'Consultar alçadas'])
-        ])
+        el('div', 'tf-ap-title', null, [el('h3', null, { text: 'Alçadas na ' + s.nome }), statusChip()]),
+        AL.documento ? el('a', 'tf-btn tf-btn--ghost', assign({ href: AL.documento }, ext(AL.documento)), ['Documento oficial', icon('north_east')]) : null
       ]));
       panel.appendChild(el('div', 'tf-ap-compare', null, [
         compareCard('before', 'Como funcionava', 'history', AL.comoFunciona),
         el('span', 'tf-ap-arrow', { 'aria-hidden': 'true' }, [icon('arrow_forward')]),
         compareCard('now', 'Como funciona agora', 'task_alt', AL.agora)
+      ]));
+      panel.appendChild(el('button', 'tf-ap-cta', { type: 'button', onclick: function () { openRules(''); } }, [
+        el('span', 'tf-ap-cta-ic', { 'aria-hidden': 'true' }, [icon('search')]),
+        el('span', 'tf-ap-cta-text', null, [el('strong', null, { text: 'Quem aprova as viagens do meu centro de custo?' }), el('span', null, { text: 'Busque pelo seu centro de custo e veja quem aprova agora.' })]),
+        el('span', 'tf-btn', { 'aria-hidden': 'true' }, ['Consultar alçadas', icon('arrow_forward')])
       ]));
     }
     var first = null;
@@ -571,13 +569,13 @@
         el('p', null, { text: (it.email ? 'Caixa de atendimento · ' : 'Ponto focal · ') + a.nome })
       ]),
       el('div', 'tf-dialog-body', { style: 'gap:20px' }, [
-        el('div', 'tf-dlg-sec', null, [el('span', 'tf-dlg-label', { text: 'Frentes de serviço' }), el('ul', 'tf-tags', null, it.frentes.map(function (f) {
-          var t = el('li', 'tf-tag' + (q && matches(f, q) ? ' is-match' : '')); t.appendChild(highlight(f, q || '')); return t;
+        el('div', 'tf-dlg-sec', null, [el('span', 'tf-dlg-label', { text: 'Frentes de serviço' }), el('ul', 'tf-fronts', null, it.frentes.map(function (f) {
+          var t = el('li', q && matches(f, q) ? 'is-match' : null, null, [icon('check')]); var s = el('span'); s.appendChild(highlight(f, q || '')); t.appendChild(s); return t;
         }))]),
         contacts.length ? el('div', 'tf-dlg-sec', null, [el('span', 'tf-dlg-label', { text: 'Contato' }), el('div', 'tf-contacts', null, contacts)]) : el('p', 'tf-empty', { text: 'Contatos ainda não cadastrados.' }),
-        el('div', 'tf-dlg-sec', null, [el('span', 'tf-dlg-label', { text: 'Liderança responsável pela área' }), it.responsavel ? el('strong', null, { text: it.responsavel }) : el('span', null, null, [el('span', 'tf-ph', { text: 'a definir' })])])
-      ]),
-      el('p', 'tf-dialog-foot', null, [icon('info'), PF.orientacao])
+        el('div', 'tf-dlg-sec', null, [el('span', 'tf-dlg-label', { text: 'Liderança responsável pela área' }), it.responsavel ? el('strong', null, { text: it.responsavel }) : el('span', null, null, [el('span', 'tf-ph', { text: 'a definir' })])]),
+        el('div', 'tf-pf-note', null, [el('span', 'tf-pf-note-ic', { 'aria-hidden': 'true' }, [icon('info_outline')]), el('div', null, null, [el('strong', null, { text: 'O que é um ponto focal?' }), el('p', null, { text: PF.orientacao })])])
+      ])
     ]);
     showDialog(dialog);
   }
@@ -589,9 +587,9 @@
     function render() {
       var v = input.value.trim();
       body.innerHTML = '';
-      body.appendChild(el('div', 'tf-rule-head', { 'aria-hidden': 'true' }, [el('span', null, { text: 'Centro de custo' }), el('span', null, { text: validating ? 'Aprovador (em validação)' : 'Aprovador' })]));
+      body.appendChild(el('div', 'tf-rule-head', { 'aria-hidden': 'true' }, [el('span', null, { text: 'Centro de custo' }), el('span', null, { text: 'Antes' }), el('span'), el('span', null, { text: 'Aprova agora' })]));
       var n = 0;
-      AL.regras.forEach(function (r) { if (v && !matches(r.centroCusto + ' ' + r.aprovador + ' ' + r.anterior, v)) return; n++; body.appendChild(ruleRow(r, v, false)); });
+      AL.regras.forEach(function (r) { if (v && !matches(r.centroCusto + ' ' + r.aprovador + ' ' + r.anterior, v)) return; body.appendChild(ruleRow(r, v, n % 2 === 1)); n++; });
       empty.hidden = n > 0; body.appendChild(empty);
     }
     input.addEventListener('input', render);
@@ -603,7 +601,7 @@
         el('div', 'tf-search-field', null, [icon('search'), input])
       ]),
       body,
-      el('p', 'tf-dialog-foot', null, [icon('info'), (AL.comoFunciona && AL.comoFunciona[0] ? AL.comoFunciona[0].texto + ' ' : '') + (validating ? 'Informações em validação, sujeitas a alteração.' : '')])
+      el('p', 'tf-dialog-foot', null, [icon('info'), AL.observacao || ''])
     ]);
     render();
     showDialog(dialog, input);
