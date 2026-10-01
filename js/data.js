@@ -151,8 +151,24 @@ window.TF_DATA = {
     titulo: "Suas dúvidas têm endereço",
     texto: "Sabemos que, neste momento, muitas perguntas ficaram sem dono. Para que nenhuma fique sem resposta, criamos um canal único.",
     complemento: "As perguntas mais frequentes vão virar nosso FAQ, atualizado toda semana.",
-    canalTexto: null,   // [PLACEHOLDER: e-mail/formulário] ex.: "transicao@zhouse.com.br"
-    canalUrl: null      // ex.: "mailto:…" ou URL do formulário
+    canalTexto: null,
+    canalUrl: null
+  },
+
+  /* ---------- FORMULÁRIO "ENVIAR MINHA DÚVIDA" → Jotform ----------
+     O formulário abre numa janela desta página e envia direto para o Jotform (as respostas caem lá).
+     "campos": nomes internos (name="") confirmados no código-fonte do Jotform. Se mudar as perguntas lá, atualize aqui.
+     "opcoes" precisa ser o texto EXATO das opções do campo de escolha no Jotform. */
+  jotform: {
+    formId: "262736434658669",
+    campos: {
+      identificar: "q184_voceDeseja",
+      nome: "q185_nomeCompleto",
+      territorio: "q187_territorio",
+      contato: "q186_emailOu",
+      duvida: "q174_descrevaSua"
+    },
+    opcoes: { sim: "Sim, quero me identificar", nao: "Não, prefiro enviar anonimamente" }
   },
 
   /* ---------- NOVIDADES: pílulas da campanha (PPT, slide 4) ----------

@@ -514,9 +514,11 @@
     faqApi = { open: function (i) { setCat(''); toggle(i, true); goTo('duvidas'); setTimeout(function () { flash(items[i]); }, 450); } };
 
     var C = D.canal || {};
-    var cta = C.canalUrl
-      ? el('a', 'tf-btn', assign({ href: C.canalUrl }, ext(C.canalUrl)), [icon('send'), 'Enviar minha dúvida'])
-      : el('span', 'tf-btn is-disabled', { title: 'Preencher canal em data.js' }, [icon('send'), 'Enviar minha dúvida']);
+    var cta = D.jotform && D.jotform.formId
+      ? el('button', 'tf-btn', { type: 'button', 'aria-haspopup': 'dialog', onclick: function () { openAsk(); } }, [icon('send'), 'Enviar minha dúvida'])
+      : C.canalUrl
+        ? el('a', 'tf-btn', assign({ href: C.canalUrl }, ext(C.canalUrl)), [icon('send'), 'Enviar minha dúvida'])
+        : el('span', 'tf-btn is-disabled', { title: 'Preencher canal em data.js' }, [icon('send'), 'Enviar minha dúvida']);
     var ask = el('aside', 'tf-card tf-ask', { 'aria-label': 'Não encontrou sua resposta?' }, [
       el('span', 'tf-ask-ic', { 'aria-hidden': 'true' }, [icon('mark_email_unread')]),
       el('div', 'tf-ask-text', null, [
@@ -607,6 +609,113 @@
     showDialog(dialog, input);
   }
 
+  /* ---------- janela: enviar dúvida (Jotform) ---------- */
+  var askDraft = { ident: null, nome: '', territorio: '', contato: '', duvida: '' };
+  function openAsk() {
+    var J = D.jotform, F = J.campos, O = J.opcoes;
+    var s = askDraft, step = 1;
+    var title = el('h2', null, { id: 'tf-dlg-title' });
+    var stepLbl = el('span', 'tf-ask-step');
+    var bar = el('span', 'tf-ask-bar', null, [el('span')]);
+    var body = el('div', 'tf-dialog-body tf-askf');
+    var foot = el('div', 'tf-askf-foot');
+    var err = el('p', 'tf-askf-err', { role: 'alert', hidden: '' });
+    function field(lbl, key, opts) {
+      opts = opts || {};
+      var inp = el(opts.area ? 'textarea' : 'input', 'tf-askf-input', assign({ id: 'tf-f-' + key, name: key, placeholder: opts.ph || '', autocomplete: opts.ac || 'off' }, opts.area ? { rows: '6' } : { type: 'text' }));
+      inp.value = s[key];
+      inp.addEventListener('input', function () { s[key] = inp.value; inp.classList.remove('is-invalid'); err.hidden = true; });
+      return el('label', 'tf-askf-field', { for: 'tf-f-' + key }, [el('span', 'tf-askf-lbl', null, [lbl, el('span', 'tf-askf-req', { text: ' *', 'aria-hidden': 'true' })]), inp, opts.hint ? el('span', 'tf-askf-hint', { text: opts.hint }) : null]);
+    }
+    function choice(val, ic, t, sub) {
+      var b = el('button', 'tf-askf-opt', { type: 'button', role: 'radio', 'aria-checked': s.ident === val ? 'true' : 'false', onclick: function () { s.ident = val; err.hidden = true; render(); } }, [
+        el('span', 'tf-askf-opt-ic', { 'aria-hidden': 'true' }, [icon(ic)]),
+        el('span', 'tf-askf-opt-txt', null, [el('strong', null, { text: t }), el('span', null, { text: sub })]),
+        el('span', 'tf-askf-radio', { 'aria-hidden': 'true' })
+      ]);
+      return b;
+    }
+    function fail(msg, node) { err.textContent = msg; err.hidden = false; if (node) { node.classList.add('is-invalid'); node.focus(); } }
+    function validate1() {
+      if (!s.ident) return fail('Escolha se deseja se identificar.'), false;
+      if (s.ident === 'sim') {
+        var keys = ['nome', 'territorio', 'contato'];
+        for (var i = 0; i < keys.length; i++) if (!s[keys[i]].trim()) return fail('Preencha os campos obrigatórios.', body.querySelector('#tf-f-' + keys[i])), false;
+      }
+      return true;
+    }
+    function render() {
+      body.innerHTML = ''; foot.innerHTML = ''; err.hidden = true;
+      dialog.classList.toggle('is-done', step === 3);
+      if (step === 3) {
+        head.hidden = true;
+        body.appendChild(el('div', 'tf-askf-done', null, [
+          el('span', 'tf-askf-done-ic', { 'aria-hidden': 'true' }, [icon('check')]),
+          el('h2', null, { id: 'tf-dlg-title', text: 'Dúvida enviada!' }),
+          el('p', null, { text: s.ident === 'sim' ? 'Recebemos sua mensagem. Vamos responder pelo contato que você informou.' : 'Recebemos sua mensagem anônima. As perguntas mais frequentes vão virar nosso FAQ, atualizado toda semana.' }),
+          el('button', 'tf-btn', { type: 'button', onclick: closeModal }, ['Fechar'])
+        ]));
+        return;
+      }
+      stepLbl.textContent = 'Etapa ' + step + ' de 2';
+      bar.firstChild.style.width = step === 1 ? '50%' : '100%';
+      if (step === 1) {
+        title.textContent = 'Identificação';
+        body.appendChild(el('div', 'tf-askf-field', { role: 'radiogroup', 'aria-label': 'Você deseja se identificar?' }, [
+          el('span', 'tf-askf-lbl', null, ['Você deseja se identificar?', el('span', 'tf-askf-req', { text: ' *', 'aria-hidden': 'true' })]),
+          el('div', 'tf-askf-opts', null, [choice('sim', 'person_outline', 'Sim, quero me identificar', 'Assim conseguimos te responder diretamente.'), choice('nao', 'visibility_off', 'Não, prefiro enviar anonimamente', 'Sua dúvida chega sem nome nem contato.')])
+        ]));
+        if (s.ident === 'sim') body.appendChild(el('div', 'tf-askf-grid', null, [
+          field('Nome completo', 'nome', { ac: 'name' }),
+          field('Território / Operação', 'territorio'),
+          el('div', 'tf-askf-span', null, [field('E-mail ou WhatsApp', 'contato', { ph: 'nome@zhouse.com.br ou (00) 00000-0000' })])
+        ]));
+        body.appendChild(err);
+        foot.appendChild(el('span'));
+        foot.appendChild(el('button', 'tf-btn', { type: 'button', onclick: function () { if (validate1()) { step = 2; render(); var t = body.querySelector('textarea'); if (t) t.focus(); } } }, ['Avançar', icon('arrow_forward')]));
+      } else {
+        title.textContent = 'Sua dúvida';
+        body.appendChild(field('Descreva sua dúvida', 'duvida', { area: true, hint: 'Conte sua dúvida, oportunidade de melhoria ou situação que gostaria de compartilhar.' }));
+        body.appendChild(err);
+        foot.appendChild(el('button', 'tf-btn tf-btn--ghost', { type: 'button', onclick: function () { step = 1; render(); } }, [icon('arrow_back'), 'Voltar']));
+        var send = el('button', 'tf-btn', { type: 'button', onclick: function () { submit(send); } }, [icon('send'), 'Enviar']);
+        foot.appendChild(send);
+      }
+    }
+    function submit(btn) {
+      if (!s.duvida.trim()) return fail('Descreva sua dúvida antes de enviar.', body.querySelector('textarea'));
+      btn.disabled = true; btn.classList.add('is-loading'); btn.lastChild.textContent = 'Enviando…';
+      var name = 'tf-jf-' + Date.now();
+      var frame = el('iframe', null, { name: name, title: 'envio', 'aria-hidden': 'true', tabindex: '-1', style: 'display:none' });
+      var form = el('form', null, { method: 'POST', action: 'https://submit.jotform.com/submit/' + J.formId + '/', target: name, 'accept-charset': 'utf-8', style: 'display:none' });
+      function add(n, v) { if (!n) return; var i = document.createElement('input'); i.type = 'hidden'; i.name = n; i.value = v; form.appendChild(i); }
+      add('formID', J.formId); add('simple_spc', J.formId + '-' + J.formId); add('website', '');
+      add(F.identificar, s.ident === 'sim' ? O.sim : O.nao);
+      if (s.ident === 'sim') {
+        if (F.nome && typeof F.nome === 'object') { var p = s.nome.trim().split(/\s+/); add(F.nome.first, p.shift() || ''); add(F.nome.last, p.join(' ')); }
+        else add(F.nome, s.nome.trim());
+        add(F.territorio, s.territorio.trim()); add(F.contato, s.contato.trim());
+      }
+      add(F.duvida, s.duvida.trim());
+      var done = false;
+      function finish() { if (done) return; done = true; setTimeout(function () { frame.remove(); form.remove(); }, 1000); askDraft = { ident: null, nome: '', territorio: '', contato: '', duvida: '' }; step = 3; render(); }
+      frame.addEventListener('load', finish);
+      document.body.appendChild(frame); document.body.appendChild(form);
+      form.submit();
+      setTimeout(finish, 8000);
+    }
+    var head = el('div', 'tf-dialog-head', null, [
+      el('div', 'tf-dialog-tags', null, [el('span', 'tf-eyebrow', null, [icon('mark_email_unread'), 'Transição em Foco · Suas dúvidas têm endereço']), stepLbl]),
+      title, bar
+    ]);
+    var dialog = el('div', 'tf-dialog is-ask', { role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'tf-dlg-title', tabindex: '-1' }, [
+      el('button', 'tf-close', { type: 'button', 'aria-label': 'Fechar', onclick: closeModal }, [icon('close')]),
+      head, body, foot
+    ]);
+    render();
+    showDialog(dialog);
+  }
+
   /* ---------- montagem ---------- */
   root.appendChild(header());
   var main = el('main', 'tf-main tf-wrap', null, [intro(), pilaresSection(), whoSection(), approveSection(), policiesSection(), faqSection()]);
@@ -617,7 +726,7 @@
     if (e.key === 'Escape') { if (!modal.hidden) closeModal(); else if (!root._closeMenu()) root._closeHelp(); }
     if (e.key === '/' && modal.hidden && !/input|textarea/i.test((document.activeElement || {}).tagName || '')) { e.preventDefault(); root._search._input.focus(); }
     if (!modal.hidden && e.key === 'Tab') {
-      var f = modal.querySelectorAll('button:not([disabled]), a[href], input');
+      var f = modal.querySelectorAll('button:not([disabled]), a[href], input, textarea');
       if (!f.length) return;
       if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
       else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }

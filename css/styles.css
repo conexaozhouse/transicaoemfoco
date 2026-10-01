@@ -63,9 +63,9 @@
 .tf-wrap { width: 100%; max-width: var(--tf-max); margin: 0 auto; padding-left: 96px; padding-right: 96px; }
 
 /* ---------- Topo (mesmo padrão do Organograma) ---------- */
-.tf-top { position: sticky; top: 0; z-index: 30; background: rgba(246, 247, 251, 0.94); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: box-shadow 200ms var(--tf-ease); }
-.tf-top.is-stuck { box-shadow: 0 1px 0 var(--tf-border); }
-.tf-top-inner { padding: 24px 24px 20px; }
+.tf-top { position: sticky; top: 0; z-index: 30; background: rgba(246, 247, 251, 0.94); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 1px 0 var(--tf-border); transition: box-shadow 200ms var(--tf-ease); }
+.tf-top.is-stuck { box-shadow: 0 1px 0 var(--tf-border), rgba(24, 39, 75, 0.06) 0 4px 8px -4px; }
+.tf-top-inner { padding: 24px; }
 .tf-titlebar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .tf-title { display: flex; align-items: center; gap: 16px; min-width: 0; }
 .tf-title-badge { display: flex; align-items: center; justify-content: center; padding: 7px; background: #fff; border: 1px solid var(--tf-border); border-radius: 8px; color: var(--tf-sand); }
@@ -133,7 +133,7 @@
 .tf-help-link .tf-icon { font-size: 18px; color: var(--tf-sand); }
 
 /* ---------- Estrutura ---------- */
-.tf-main { display: flex; flex-direction: column; gap: 72px; padding-top: 28px; padding-bottom: 80px; }
+.tf-main { display: flex; flex-direction: column; gap: 72px; padding-top: 48px; padding-bottom: 80px; }
 .tf-intro { display: flex; flex-direction: column; gap: 16px; }
 .tf-section { scroll-margin-top: 80px; display: flex; flex-direction: column; gap: 24px; }
 .tf-sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; }
@@ -481,7 +481,7 @@ a.tf-contact:hover .tf-contact-val { color: var(--tf-sand); }
 }
 @media (max-width: 760px) {
   .tf-wrap { padding-left: 16px; padding-right: 16px; }
-  .tf-main { gap: 56px; padding-top: 16px; }
+  .tf-main { gap: 56px; padding-top: 32px; }
   .tf-h2 { font-size: 24px; line-height: 32px; letter-spacing: -0.6px; }
   .tf-lead { font-size: 14px; line-height: 20px; }
   .tf-kbd { display: none; }
@@ -529,3 +529,47 @@ a.tf-contact:hover .tf-contact-val { color: var(--tf-sand); }
   .tf-app *, .tf-app *::before, .tf-app *::after { animation: none !important; transition: none !important; }
   .tf-reveal { opacity: 1; transform: none; }
 }
+
+/* ---------- Janela: enviar dúvida ---------- */
+.tf-dialog.is-ask { max-width: 560px; }
+.tf-dialog.is-ask .tf-dialog-tags { padding-right: 36px; }
+.tf-ask-step { margin-left: auto; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--tf-ink-2); }
+.tf-ask-bar { display: block; height: 4px; border-radius: 4px; background: var(--tf-sand-line); overflow: hidden; }
+.tf-ask-bar > span { display: block; height: 100%; width: 50%; border-radius: 4px; background: var(--tf-earth); transition: width 300ms var(--tf-ease); }
+.tf-askf { gap: 18px; padding-top: 20px; }
+.tf-askf-field { display: flex; flex-direction: column; gap: 6px; }
+.tf-askf-lbl { font-weight: 500; color: var(--tf-ink); }
+.tf-askf-req { color: var(--tf-earth); }
+.tf-askf-hint { font-size: 12px; line-height: 16px; color: var(--tf-ink-2); text-wrap: pretty; }
+.tf-askf-input { width: 100%; padding: 10px 12px; min-height: 40px; background: #fff; border: 1px solid var(--tf-border); border-radius: 8px; font: inherit; color: var(--tf-ink); resize: vertical; transition: border-color 150ms var(--tf-ease), box-shadow 150ms var(--tf-ease); }
+.tf-askf-input::placeholder { color: var(--tf-ink-3); }
+.tf-askf-input:hover { border-color: var(--tf-sand); }
+.tf-askf-input:focus { outline: 0; border-color: var(--tf-sand); box-shadow: 0 0 0 3px var(--tf-sand-line); }
+.tf-askf-input.is-invalid { border-color: #dc2626; box-shadow: 0 0 0 3px #fee2e2; }
+textarea.tf-askf-input { min-height: 140px; line-height: 20px; }
+.tf-askf-opts { display: grid; gap: 8px; }
+.tf-askf-opt { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; text-align: left; background: #fff; border: 1px solid var(--tf-border); border-radius: 12px; cursor: pointer; transition: border-color 150ms var(--tf-ease), background 150ms var(--tf-ease); }
+.tf-askf-opt:hover { border-color: var(--tf-sand); }
+.tf-askf-opt[aria-checked="true"] { border-color: var(--tf-earth); background: var(--tf-sand-soft); box-shadow: inset 0 0 0 1px var(--tf-earth); }
+.tf-askf-opt-ic { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--tf-sand-soft); color: var(--tf-sand-dark); }
+.tf-askf-opt[aria-checked="true"] .tf-askf-opt-ic { background: #fff; }
+.tf-askf-opt-ic .tf-icon { font-size: 20px; }
+.tf-askf-opt-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.tf-askf-opt-txt strong { font-weight: 500; }
+.tf-askf-opt-txt span { font-size: 12px; line-height: 16px; color: var(--tf-ink-2); }
+.tf-askf-radio { flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--tf-line); transition: border 150ms var(--tf-ease); }
+.tf-askf-opt[aria-checked="true"] .tf-askf-radio { border: 5px solid var(--tf-earth); }
+.tf-askf-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; animation: tf-rise 220ms var(--tf-ease); }
+.tf-askf-span { grid-column: 1 / -1; }
+@media (max-width: 520px) { .tf-askf-grid { grid-template-columns: minmax(0, 1fr); } }
+.tf-askf-err { margin: 0; padding: 10px 12px; border-radius: 8px; background: #fef2f2; color: #b91c1c; font-size: 13px; line-height: 18px; }
+.tf-askf-err[hidden] { display: none; }
+.tf-askf-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 24px; border-top: 1px solid var(--tf-border); background: #fff; }
+.tf-dialog.is-done .tf-askf-foot { display: none; }
+.tf-btn:disabled, .tf-btn.is-loading { opacity: 0.7; cursor: progress; box-shadow: none; }
+.tf-askf-done { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 32px 8px 8px; text-align: center; }
+.tf-askf-done-ic { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: var(--tf-success-bg); color: var(--tf-success); box-shadow: 0 0 0 4px #fff, 0 0 0 5px var(--tf-success-line); animation: tf-rise 260ms var(--tf-ease); }
+.tf-askf-done-ic .tf-icon { font-size: 32px; }
+.tf-askf-done h2 { font-size: 20px; line-height: 28px; font-weight: 500; }
+.tf-askf-done p { max-width: 380px; color: var(--tf-ink-2); text-wrap: pretty; }
+.tf-askf-done .tf-btn { margin-top: 8px; }
